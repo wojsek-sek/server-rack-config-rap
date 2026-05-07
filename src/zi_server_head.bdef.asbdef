@@ -1,0 +1,82 @@
+managed implementation in class zbp_i_server_head unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZI_SERVER_HEAD alias Server
+persistent table zserverrack
+draft table zserverrack_d
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+etag master LocalLastChangedAt
+
+{
+  create ( authorization : global );
+  update;
+  delete;
+
+  field ( numbering : managed, readonly ) ConfigUuid;
+  field ( readonly ) TotalPrice, TotalPowerW, TotalSpaceU;
+  field ( readonly ) LocalCreatedAt, LocalCreatedBy, LastChangedAt, LocalLastChangedAt, LocalLastChangedBy;
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+  association _Items { create; with draft; }
+
+  mapping for zserverrack
+  {
+    ConfigUuid = config_uuid;
+    ProjectName = project_name;
+    CustomerId = customer_id;
+    TotalPrice = total_price;
+    Currency = currency;
+    TotalPowerW = total_power_w;
+    TotalSpaceU = total_space_u;
+    LocalCreatedBy = local_created_by;
+    LocalCreatedAt = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+}
+
+define behavior for ZI_SERVER_ITEM alias _Items
+persistent table zserver_item
+draft table zserver_item_d
+lock dependent by _Server
+authorization dependent by _Server
+etag master LocalLastChangedAt
+{
+  update;
+  delete;
+
+  field ( readonly ) ConfigUuid;
+  field ( numbering : managed, readonly ) ItemUuid;
+  field ( readonly ) LocalCreatedAt, LocalCreatedBy, LastChangedAt, LocalLastChangedAt, LocalLastChangedBy;
+
+  association _Server { with draft; }
+
+  determination calculateTotals on modify { field Quantity, PricePerUnit, PowerWPerUnit, SpaceUPerUnit; create; delete; }
+
+  mapping for zserver_item
+  {
+    ItemUuid = item_uuid;
+    ConfigUuid = config_uuid;
+    ComponentId = component_id;
+    ComponentType = component_type;
+    Quantity = quantity;
+    PricePerUnit = price_per_unit;
+    Currency = currency;
+    PowerWPerUnit = power_w_per_unit;
+    SpaceUPerUnit = space_u_per_unit;
+    LocalCreatedBy = local_created_by;
+    LocalCreatedAt = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt = last_changed_at;
+  }
+}

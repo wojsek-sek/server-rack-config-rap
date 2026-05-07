@@ -1,0 +1,5 @@
+@EndUserText.label: 'Server Rack Service Definition'
+define service ZUI_SERVER_RACK_V4_DEF {
+  expose ZC_SERVER_HEAD as Server;
+  expose ZC_SERVER_ITEM as Item;
+}
